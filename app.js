@@ -1,5 +1,5 @@
-require('dotenv').config();
-console.log(process.env.SECRET);
+require("dotenv").config();
+// console.log(process.env.SECRET);
 
 const express = require("express");
 const app = express();
@@ -25,40 +25,38 @@ app.use(methodOverride("_method"));
 app.engine("ejs", ejsMate);
 app.use(express.static(path.join(__dirname, "/public"))); //public folder accesing path
 
+const dbUrl = process.env.MONGO_ATLAS;
 main()
-    .then((res) => {
-        console.log("Connected to the database");
-    })
-    .catch((err) => console.log(err));
+  .then((res) => {
+    console.log("Connected to the database");
+  })
+  .catch((err) => console.log(err));
 
 async function main() {
-    await mongoose.connect("mongodb://127.0.0.1:27017/wonderlust");
+  await mongoose.connect(dbUrl);
 }
 
 const validatelisting = (req, res, next) => {
-    let { error } = listingSchema.validate(req.body);
-    if (error) {
-        let errMsg = error.details.map((el) => el.message).join(",");
-        throw new ExpressError(400, errMsg);
-    } else {
-        next();
-    }
+  let { error } = listingSchema.validate(req.body);
+  if (error) {
+    let errMsg = error.details.map((el) => el.message).join(",");
+    throw new ExpressError(400, errMsg);
+  } else {
+    next();
+  }
 };
 
 const sessionOption = {
-    secret: "mysupersecretstring",
-    resave: false,
-    saveUninitialized: true,
-    cookie: {
-        expires: Date.now() + 1000 * 60 * 60 * 24 * 3,
-        maxAge: 1000 * 60 * 60 * 24 * 3,
-        httpOnly: true,
-    },
+  secret: "mysupersecretstring",
+  resave: false,
+  saveUninitialized: true,
+  cookie: {
+    expires: Date.now() + 1000 * 60 * 60 * 24 * 3,
+    maxAge: 1000 * 60 * 60 * 24 * 3,
+    httpOnly: true,
+  },
 };
 
-// app.get("/", (req, res) => {
-//   res.send("i am root");
-// });
 
 app.use(session(sessionOption));
 app.use(flash());
@@ -70,35 +68,27 @@ passport.serializeUser(User.serializeUser());
 passport.deserializeUser(User.deserializeUser());
 
 app.use((req, res, next) => {
-    res.locals.success = req.flash("success");
-    res.locals.error = req.flash("error");
-    res.locals.currUser = req.user;
-    next();
+  res.locals.success = req.flash("success");
+  res.locals.error = req.flash("error");
+  res.locals.currUser = req.user;
+  next();
 });
 
-// app.get("/demouser", async (req, res) => {
-//   let fakeUser = new User({
-//     email: "umes67@gmail.com",
-//     username: "umeshpatil",
-//   });
-//   let newUser = await User.register(fakeUser, "patil@123");
-//   res.send(newUser);
-// });
 
 app.use("/listings", listingRouter);
 app.use("/listings/:id/reviews", reviewRouter);
 app.use("/", userRouter);
 
 app.all("*", (req, res, next) => {
-    next(new ExpressError(401, "page not found"));
+  next(new ExpressError(401, "page not found"));
 });
 
 app.use((err, req, res, next) => {
-    let { status = 401, message = "Something went wrong" } = err;
-    res.status(status).render("listning/Error.ejs", { message });
-    // res.status(status).send(message);
+  let { status = 401, message = "Something went wrong" } = err;
+  res.status(status).render("listning/Error.ejs", { message });
+  // res.status(status).send(message);
 });
 
 app.listen(8080, (req, res) => {
-    console.log("Server is running on port 8080");
+  console.log("Server is running on port 8080");
 });

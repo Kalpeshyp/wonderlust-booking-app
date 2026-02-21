@@ -12,22 +12,19 @@ const {
   signupUpdate,
 } = require("../controllers/user.js");
 
+router.route("/signup").get(signupUser).post(wrapAsync(signupUpdate));
 
-router.route("/signup")
-.get( signupUser)
-.post( wrapAsync(signupUpdate));
-
-
-router.route("/login")
-.get( loginUser)
-.post(
-  saveRedirectUrl,
-  passport.authenticate("local", {
-    failureRedirect: "/login",
-    failureFlash: true,
-  }),
-  loginUpdate
-);
+router
+  .route("/login")
+  .get(loginUser)
+  .post(
+    saveRedirectUrl,
+    passport.authenticate("local", {
+      failureRedirect: "/login",
+      failureFlash: true,
+    }),
+    loginUpdate,
+  );
 
 router.get("/logout", logoutUser);
 
