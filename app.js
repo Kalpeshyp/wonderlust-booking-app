@@ -1,4 +1,4 @@
-require("dotenv").config();
+require("dotenv").config(); //env file accessing
 // console.log(process.env.SECRET);
 
 const express = require("express");
@@ -13,6 +13,7 @@ const reviewRouter = require("./routes/reviews.js");
 const userRouter = require("./routes/user.js");
 
 const session = require("express-session");
+const MongoStore = require("connect-mongo").default; //mongo session store
 const flash = require("connect-flash");
 const passport = require("passport");
 const LocalStrategy = require("passport-local");
@@ -23,7 +24,7 @@ app.set("views", path.join(__dirname, "views"));
 app.use(express.urlencoded({ extended: true }));
 app.use(methodOverride("_method"));
 app.engine("ejs", ejsMate);
-app.use(express.static(path.join(__dirname, "/public"))); //public folder accesing path
+app.use(express.static(path.join(__dirname, "/public"))); //public folder accessing path
 
 const dbUrl = process.env.MONGO_ATLAS;
 main()
@@ -36,17 +37,19 @@ async function main() {
   await mongoose.connect(dbUrl);
 }
 
-const validatelisting = (req, res, next) => {
-  let { error } = listingSchema.validate(req.body);
-  if (error) {
-    let errMsg = error.details.map((el) => el.message).join(",");
-    throw new ExpressError(400, errMsg);
-  } else {
-    next();
-  }
-};
+const store = MongoStore.create({
+  mongoUrl: dbUrl,
+  crypto: {
+    secret: process.env.SECRET,
+  },
+  touchAfter: 24 * 3600,
+});
 
+store.on("error", () => {
+  console.log("error in mongo session store");
+})
 const sessionOption = {
+  store,
   secret: "mysupersecretstring",
   resave: false,
   saveUninitialized: true,
@@ -56,7 +59,6 @@ const sessionOption = {
     httpOnly: true,
   },
 };
-
 
 app.use(session(sessionOption));
 app.use(flash());
@@ -73,7 +75,6 @@ app.use((req, res, next) => {
   res.locals.currUser = req.user;
   next();
 });
-
 
 app.use("/listings", listingRouter);
 app.use("/listings/:id/reviews", reviewRouter);
