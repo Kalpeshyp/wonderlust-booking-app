@@ -1,5 +1,5 @@
 require("dotenv").config(); //env file accessing
-// console.log(process.env.SECRET);
+console.log(process.env);
 
 const express = require("express");
 const app = express();
@@ -26,7 +26,7 @@ app.use(methodOverride("_method"));
 app.engine("ejs", ejsMate);
 app.use(express.static(path.join(__dirname, "/public"))); //public folder accessing path
 
-const dbUrl = process.env.MONGO_ATLAS;
+const dbUrl = process.env.MONGO_URL;
 main()
   .then((res) => {
     console.log("Connected to the database");
@@ -38,7 +38,7 @@ async function main() {
 }
 
 const store = MongoStore.create({
-  mongoUrl: process.env.MONGO_ATLAS,
+  mongoUrl: process.env.MONGO_URL,
   crypto: {
     secret: process.env.SECRET,
   },
