@@ -38,7 +38,7 @@ async function main() {
 }
 
 const store = MongoStore.create({
-  mongoUrl: dbUrl,
+  mongoUrl: process.env.MONGO_ATLAS,
   crypto: {
     secret: process.env.SECRET,
   },
