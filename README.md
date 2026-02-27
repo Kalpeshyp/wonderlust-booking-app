@@ -3,7 +3,7 @@
 Wonderlust is a full-stack hotel booking web application that allows users to explore, add, edit, and manage property listings.
 
 ## 🚀 Live Demo
-https://wonderlust-booking-app-918n.onrender.com
+https://wonderlust-booking-app-918n.onrender.com/listings
 
 ## 📌 Features
 - User Authentication & Authorization
